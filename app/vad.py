@@ -1,9 +1,9 @@
 import onnxruntime
 import numpy as np
-from logging import getLogger, basicConfig, INFO
+import logging
+from logger_setup import setup_custom_logger
 
-logger = getLogger(__name__)
-basicConfig(level=INFO)
+logger = setup_custom_logger(__name__, 'logs/vad.log', log_level=logging.INFO) 
 
 class VAD():
     def __init__(self, 
@@ -79,4 +79,4 @@ if __name__ == "__main__":
     vad = VAD("model/vad/model.onnx")
     x = np.random.randn(1, 512)
     out = vad(x, 16000)
-    print(out)
+    logger.info(out)

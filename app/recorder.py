@@ -1,10 +1,9 @@
 from queue import Queue
 import pyaudio
-from threading import Thread
-from logging import getLogger, basicConfig, INFO
+import logging
+from logger_setup import setup_custom_logger
 
-logger = getLogger(__name__)
-basicConfig(level=INFO)
+logger = setup_custom_logger(__name__, 'logs/recorder.log', log_level=logging.INFO) 
 
 class Recorder():
     def __init__(self,
