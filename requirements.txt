@@ -1,0 +1,7 @@
+torch
+torchaudio
+accelerate
+onnxruntime
+transformers
+numpy
+pyaudio
