@@ -4,4 +4,4 @@ accelerate
 onnxruntime
 transformers
 numpy
-pyaudio
+sounddevice
