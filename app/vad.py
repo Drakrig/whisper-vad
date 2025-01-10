@@ -1,9 +1,9 @@
 import onnxruntime
 import numpy as np
-import logging
-from logger_setup import setup_custom_logger
+from logging import getLogger, basicConfig, INFO
 
-logger = setup_custom_logger(__name__, 'logs/vad.log', log_level=logging.INFO) 
+logger = getLogger(__name__)
+basicConfig(level=INFO)
 
 class VAD():
     def __init__(self, 
@@ -18,6 +18,7 @@ class VAD():
             self.session = onnxruntime.InferenceSession(model_path, sess_options=opts)
         self.sr = 16000
         self._reset_states()
+        logger.info("VAD model loaded")
     
     def _validate_input(self, x:np.ndarray, sr: int):
         if len(x.shape) == 1:

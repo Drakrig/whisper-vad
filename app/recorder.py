@@ -1,9 +1,11 @@
 from queue import Queue
 import pyaudio
-import logging
-from logger_setup import setup_custom_logger
+import numpy as np
+from threading import Thread
+from logging import getLogger, basicConfig, INFO
 
-logger = setup_custom_logger(__name__, 'logs/recorder.log', log_level=logging.INFO) 
+logger = getLogger(__name__)
+basicConfig(level=INFO)
 
 class Recorder():
     def __init__(self,
@@ -18,6 +20,7 @@ class Recorder():
     def _stream_audio(self):
         while self.running:
             data = self.audio_stream.read(self.frame_size)
+            data = np.frombuffer(data, dtype=np.float32)
             self.output_queue.put(data)
     
     def start_recording(self, device_index=None):
@@ -33,11 +36,13 @@ class Recorder():
         self.stream_thread.start()
     
     def stop_recording(self):
+        logger.info("Stopping recording")
         self.running = False
         self.stream_thread.join()
         self.audio_stream.stop_stream()
         self.audio_stream.close()
         self.audio.terminate()
+        logger.info("Recording stopped")
 
 if __name__ == "__main__":
     logger.info("Testing Recorder")
