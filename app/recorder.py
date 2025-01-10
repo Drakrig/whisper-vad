@@ -1,5 +1,5 @@
 from queue import Queue
-import pyaudio
+import sounddevice as sd
 import numpy as np
 from threading import Thread
 from logging import getLogger
@@ -17,33 +17,11 @@ class Recorder():
         self.sr = sample_rate
         self.frame_size = int(sample_rate * frame_duration_ms / 1000)
         self.running = False
-    
-    def _stream_audio(self):
-        while self.running:
-            data = self.audio_stream.read(self.frame_size)
-            data = np.frombuffer(data, dtype=np.float32)
-            self.output_queue.put(data)
-    
-    def start_recording(self, device_index=None):
-        self.audio = pyaudio.PyAudio()
-        self.audio_stream = self.audio.open(format=pyaudio.paFloat32,
-                                       channels=1,
-                                       rate=self.sr,
-                                       input=True,
-                                       frames_per_buffer=self.frame_size,
-                                       input_device_index=device_index)
-        self.running = True
-        self.stream_thread = Thread(target=self._stream_audio)
-        self.stream_thread.start()
-    
-    def stop_recording(self):
-        logger.info("Stopping recording")
-        self.running = False
-        self.stream_thread.join()
-        self.audio_stream.stop_stream()
-        self.audio_stream.close()
-        self.audio.terminate()
-        logger.info("Recording stopped")
+
+    def read_from_stream(self, indata, frames, time, status):
+        if status:
+            logger.error(f"Error: {status}")
+        self.output_queue.put(np.array(indata, dtype=np.float32)[:,0]) 
 
 if __name__ == "__main__":
     logger.info("Testing Recorder")

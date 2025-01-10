@@ -4,6 +4,7 @@ Each subclass should redefine the run method to define the task to be executed."
 
 from multiprocessing import Condition, Event, JoinableQueue
 from recorder import Recorder
+import sounddevice as sd
 from vad import VAD
 from whisper import WhisperWrapper
 from dataclasses import dataclass
@@ -51,23 +52,21 @@ class RecorderTask(Task):
     recorder: Recorder
 
     def run(self):
-        self.recorder.start_recording()
         try:
-            while not self.stop_event.is_set():
-                data = recorder.audio_stream.read(self.frame_size)
-                data = np.frombuffer(data, dtype=np.float32)
-                self.output_queue.put(data)
+            with sd.InputStream(dtype='float32',channels=1, samplerate=self.recorder.sr, blocksize=self.recorder.frame_size, callback=self.recorder.read_from_stream):
+                self.stop_event.wait()
         except KeyboardInterrupt:
             logger.info(f"Task {self.name} stopped")
 
 @dataclass(kw_only=True)
 class VADTask(Task):
     vad: VAD
-    max_silence_duration_ms: int = 1000
+    max_silence_duration_ms: int = 2000
     frame_duration_ms: int = 32
     threshold: float = 0.5
 
     def run(self, *args, **kwargs):
+        self.vad.prepare_session()
         buffer = []
         silence_chunk_counter = 0
         chunk_limmit = self.max_silence_duration_ms // self.frame_duration_ms
@@ -95,12 +94,15 @@ class VADTask(Task):
                         silence_chunk_counter = 0
                         with self.next_task_notifier:
                             self.next_task_notifier.notify()
+                    elif silence_chunk_counter > chunk_limmit and len(buffer) == 0:
+                        silence_chunk_counter = 0
         except KeyboardInterrupt:
             logger.info(f"Task {self.name} stopped")
 
 @dataclass(kw_only=True)
 class WhisperTask(Task):
     whisper: WhisperWrapper
+    run_condition: Condition
 
     def run(self, *args, **kwargs):
         try:
@@ -113,7 +115,6 @@ class WhisperTask(Task):
                 try:
                     data = self.input_queue.get(timeout=1)
                 except Empty:
-                    logger.error(f"Timeout waiting for input in {self.name}")
                     continue
                 self.input_queue.task_done()
                 text = self.whisper(data)
