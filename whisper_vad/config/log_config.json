@@ -11,7 +11,7 @@
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": "DEBUG"
+            "level": "INFO"
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
@@ -24,11 +24,11 @@
     },
     "root": {
         "handlers": ["console", "file"],
-        "level": "DEBUG"
+        "level": "INFO"
     },
     "loggers": {
         "multiproc": {
-            "level": "DEBUG",
+            "level": "INFO",
             "handlers": ["console"],
             "encoding":"ascii",
             "propagate": false
