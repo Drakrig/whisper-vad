@@ -1,9 +1,10 @@
 import onnxruntime
 import numpy as np
-from logging import getLogger, basicConfig, INFO
+from logging import getLogger
+from log_config import setup_logging
 
+setup_logging()
 logger = getLogger(__name__)
-basicConfig(level=INFO)
 
 class VAD():
     def __init__(self, 

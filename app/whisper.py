@@ -1,6 +1,11 @@
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 import torch
 import numpy as np
+from logging import getLogger
+from log_config import setup_logging
+
+setup_logging()
+logger = getLogger(__name__)
 
 class WhisperWrapper():
     def __init__(self, 

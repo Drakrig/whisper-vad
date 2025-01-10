@@ -2,10 +2,11 @@ from queue import Queue
 import pyaudio
 import numpy as np
 from threading import Thread
-from logging import getLogger, basicConfig, INFO
+from logging import getLogger
+from log_config import setup_logging
 
+setup_logging()
 logger = getLogger(__name__)
-basicConfig(level=INFO)
 
 class Recorder():
     def __init__(self,
