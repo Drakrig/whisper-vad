@@ -11,15 +11,19 @@ class VAD():
                  model_path,
                  device="cpu"):
         logger.info(f"Loading VAD model from {model_path}")
-        opts = onnxruntime.SessionOptions()
-        opts.inter_op_num_threads = 1
-        if device == "cpu":
-            self.session = onnxruntime.InferenceSession(model_path, providers=["CPUExecutionProvider"],sess_options=opts)
-        else:
-            self.session = onnxruntime.InferenceSession(model_path, sess_options=opts)
+        self.device = device
+        self.model_path = model_path
         self.sr = 16000
         self._reset_states()
         logger.info("VAD model loaded")
+    
+    def prepare_session(self):
+        opts = onnxruntime.SessionOptions()
+        opts.inter_op_num_threads = 1
+        if self.device == "cpu":
+            self.session = onnxruntime.InferenceSession(self.model_path, providers=["CPUExecutionProvider"],sess_options=opts)
+        else:
+            self.session = onnxruntime.InferenceSession(self.model_path, sess_options=opts)
     
     def _validate_input(self, x:np.ndarray, sr: int):
         if len(x.shape) == 1:
