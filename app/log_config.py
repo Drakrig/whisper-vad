@@ -1,9 +1,10 @@
 # logging_config.py
 import logging.config
 import json
+import os
 from pathlib import Path
 
-LOGGING_CONFIG = {
+LOGGING_EXAMPLE = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -48,6 +49,8 @@ LOGGING_CONFIG = {
 
 def setup_logging(config_dir: str = "app/config/"):
     config_path = Path(config_dir)
+    if not config_path.exists():
+        os.makedirs(config_path)
     with open(config_path.joinpath("log_config.json"), mode="r") as f:
         LOGGING_CONFIG = json.load(f)
     logging.config.dictConfig(LOGGING_CONFIG)
