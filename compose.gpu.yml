@@ -1,0 +1,14 @@
+services:
+  whisper:
+    build:
+      dockerfile: dockerfile.gpu
+      tags: 
+        - "whisper_vad_image:gpu"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    

@@ -1,0 +1,15 @@
+services:
+  whisper:
+    build:
+      context: ./docker/
+      dockerfile: dockerfile.cpu
+      tags: 
+        - "whisper_vad_image:cpu"
+    devices:
+      - /dev/snd:/dev/snd
+    volumes:
+      - "./whisper_vad:/app/"
+      - "${VAD_DIR}:/app/model/vad/"
+      - "${WHISPER_DIR}:/app/model/whisper/"
+    entrypoint: python3.11 /app/main.py
+    
