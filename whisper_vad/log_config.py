@@ -49,8 +49,8 @@ LOGGING_EXAMPLE = {
 
 def setup_logging(config_dir: str = "config/"):
     config_path = Path(config_dir)
-    if not config_path.exists():
-        os.makedirs(config_path)
+    if not Path("log/").exists():
+        os.makedirs("log")
     with open(config_path.joinpath("log_config.json"), mode="r") as f:
         LOGGING_CONFIG = json.load(f)
     logging.config.dictConfig(LOGGING_CONFIG)
