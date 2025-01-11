@@ -14,9 +14,9 @@ class WhisperWrapper():
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
 
-        self.processor = AutoProcessor.from_pretrained("app/model/whisper")
+        self.processor = AutoProcessor.from_pretrained(model_path)
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            "app/model/whisper", 
+            model_path, 
             torch_dtype=torch_dtype, 
             low_cpu_mem_usage=True, 
             use_safetensors=True
