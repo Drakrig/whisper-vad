@@ -20,9 +20,9 @@ if __name__ == "__main__":
         stop_event = Event()
         whisper_run_condition = Condition()
 
-        whisper = WhisperWrapper("app/model/whisper/")
+        whisper = WhisperWrapper("model/whisper/")
 
-        vad = VAD("app/model/vad/model.onnx")
+        vad = VAD("model/vad/model.onnx")
 
         recorder = Recorder(recorder_output_queue)
 

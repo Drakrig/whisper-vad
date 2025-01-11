@@ -47,7 +47,7 @@ LOGGING_EXAMPLE = {
     }
 }
 
-def setup_logging(config_dir: str = "app/config/"):
+def setup_logging(config_dir: str = "config/"):
     config_path = Path(config_dir)
     if not config_path.exists():
         os.makedirs(config_path)

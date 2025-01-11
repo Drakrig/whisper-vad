@@ -15,7 +15,7 @@
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "app/log/app.log",
+            "filename": "log/app.log",
             "formatter": "standard",
             "level": "INFO",
             "backupCount": 5,
