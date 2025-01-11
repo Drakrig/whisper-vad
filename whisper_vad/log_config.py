@@ -1,4 +1,3 @@
-# logging_config.py
 import logging.config
 import json
 import os
@@ -48,6 +47,11 @@ LOGGING_EXAMPLE = {
 }
 
 def setup_logging(config_dir: str = "config/"):
+    """Setup logging configuration from a JSON file
+
+    :param config_dir: Directory with log_config.json file, defaults to "config/"
+    :type config_dir: str, optional
+    """
     config_path = Path(config_dir)
     if not Path("log/").exists():
         os.makedirs("log")

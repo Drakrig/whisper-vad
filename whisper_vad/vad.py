@@ -7,6 +7,9 @@ setup_logging()
 logger = getLogger(__name__)
 
 class VAD():
+    """Voice Activity Detection class
+    Original code from https://github.com/snakers4/silero-vad/blob/master/src/silero_vad/utils_vad.py
+    """
     def __init__(self, 
                  model_path,
                  device="cpu"):
@@ -18,6 +21,8 @@ class VAD():
         logger.info("VAD model loaded")
     
     def prepare_session(self):
+        """Make necessary preparations for the ONNX Runtime inference
+        """
         opts = onnxruntime.SessionOptions()
         opts.inter_op_num_threads = 1
         if self.device == "cpu":
@@ -25,11 +30,22 @@ class VAD():
         else:
             self.session = onnxruntime.InferenceSession(self.model_path, sess_options=opts)
     
-    def _validate_input(self, x:np.ndarray, sr: int):
+    def _validate_input(self, x:np.ndarray, sr: int) -> tuple[np.ndarray, int]:
+        """Check input audio chunk for mismatch size or shape
+
+        :param x: Input audio chunk
+        :type x: np.ndarray
+        :param sr: Sample rate
+        :type sr: int
+        :raises ValueError: When input audio chunk has too many dimensions
+        :raises ValueError: When input audio chunk is too short
+        :return: Tuple of input audio chunk (reshaped if nessesary) and sample rate
+        :rtype: tuple[np.ndarray, int]
+        """
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
         if len(x.shape) > 2:
-            raise ValueError(f"Too many dimensions for input audio chunk {x.dim()}")
+            raise ValueError(f"Too many dimensions for input audio chunk {len(x.shape)}")
 
         if sr != 16000 and (sr % 16000 == 0):
             step = sr // 16000
@@ -41,12 +57,24 @@ class VAD():
         return x, sr
     
     def _reset_states(self, batch_size=1):
+        """Reset the states of the model"""
         self._state = np.zeros((2, batch_size, 128),dtype=np.float32)
         self._context = np.zeros(0,dtype=np.float32)
         self._last_sr = 0
         self._last_batch_size = 0
     
-    def __call__(self, x:np.ndarray, sr:int):
+    def __call__(self, x:np.ndarray, sr:int) -> list[list[float]]:
+        """Main model inference function
+
+        :param x: INput audio chunk
+        :type x: np.ndarray
+        :param sr: Sample rate
+        :type sr: int
+        :raises ValueError: When mismatch expected number of samples
+        :raises ValueError: When sample rate is not supported
+        :return: Raw output from inference session as list of voice activity probabilities
+        :rtype: list[list[float]]
+        """
         x, sr = self._validate_input(x, sr)
         num_samples = 512 if sr == 16000 else 256
 

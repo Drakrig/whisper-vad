@@ -9,6 +9,15 @@ setup_logging()
 logger = getLogger(__name__)
 
 class Recorder():
+    """Class to provide recording functionality
+
+    :param output_queue: Queue to store recorded audio chunks. Might be any instance of Queue that support `put` method like `multiprocessing.Queue`
+    :type output_queue: Queue
+    :param sample_rate: Recording sample rate, defaults to 16000
+    :type sample_rate: int, optional
+    :param frame_duration_ms: Duration of one audio chunk, supported by VAD model, defaults to 32
+    :type frame_duration_ms: int, optional
+    """
     def __init__(self,
                  output_queue:Queue,
                  sample_rate=16000,
@@ -18,7 +27,22 @@ class Recorder():
         self.frame_size = int(sample_rate * frame_duration_ms / 1000)
         self.running = False
 
-    def read_from_stream(self, indata, frames, time, status):
+    def read_from_stream(self, 
+                         indata: ndarray,
+                         frames: int, 
+                         time, 
+                         status):
+        """Function compatible with `sounddevice.InputStream.read` method
+
+        :param indata: Buffer with recorded audio data
+        :type indata: _type_
+        :param frames: Amount of frames in the buffer
+        :type frames: int
+        :param time: CFFI structure with timestamps
+        :type time: CData
+        :param status: Indicating whether input and/or output buffers have been inserted or will be dropped to overcome underflow or overflow conditions.
+        :type status: CallbackFlags
+        """
         if status:
             logger.error(f"Error: {status}")
         self.output_queue.put(np.array(indata, dtype=np.float32)[:,0]) 

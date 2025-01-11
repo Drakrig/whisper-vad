@@ -49,6 +49,11 @@ class Task:
 
 @dataclass(kw_only=True)
 class RecorderTask(Task):
+    """Task to record audio from the microphone
+    Argumnets:
+    :param recorder: Instance of the Recorder class
+    :type recorder: :class:`Recorder'
+    """
     recorder: Recorder
 
     def run(self):
@@ -60,6 +65,17 @@ class RecorderTask(Task):
 
 @dataclass(kw_only=True)
 class VADTask(Task):
+    """Task to perform Voice Activity Detection
+    Argumnets:
+    :param vad: Instance of the VAD class
+    :type vad: :class:`Recorder'
+    :param max_silence_duration_ms: Maximum duration of silence in milliseconds
+    :type max_silence_duration_ms: int
+    :param frame_duration_ms: Duration of one audio chunk in milliseconds
+    :type frame_duration_ms: int
+    :param threshold: Threshold for VAD output
+    :type threshold: float
+    """
     vad: VAD
     max_silence_duration_ms: int = 2000
     frame_duration_ms: int = 32
@@ -101,6 +117,13 @@ class VADTask(Task):
 
 @dataclass(kw_only=True)
 class WhisperTask(Task):
+    """Task to perform ASR
+    Argumnets:
+    :param whisper: Instance of the WhisperWrapper class
+    :type whisper: :class:`WhisperWrapper'
+    :param run_condition: Condition object for notify the task to run
+    :type run_condition: :class:`Condition'
+    """
     whisper: WhisperWrapper
     run_condition: Condition
 

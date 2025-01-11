@@ -8,6 +8,8 @@ setup_logging()
 logger = getLogger(__name__)
 
 class WhisperWrapper():
+    """Wrapper for the HuggingFace pipeline for ASR
+    """
     def __init__(self, 
                  model_path:str):
         logger.info(f"Loading model from {model_path}")
@@ -35,16 +37,15 @@ class WhisperWrapper():
 
         self.running = False
     
-    def __call__(self, data:np.ndarray):
+    def __call__(self, data:np.ndarray) -> str:
+        """Process audio data
+
+        :param data: Audio data
+        :type data: np.ndarray
+        :return: Recognized text
+        :rtype: str
+        """
         logger.debug(f"Transcribing audio chunk of size {data.shape}")
         text = self.pipe(data, generate_kwargs={"language": "en"})["text"]
         logger.debug(f"Transcription: {text}")
         return text
-    
-    def process_audio(self):
-        while self.running:
-            data = self.input_queue.get()
-            text = self(data)
-            self.output_queue.put(text)
-        self.thread.join()
-        logger.info("Whisper stopped")
