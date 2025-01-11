@@ -1,0 +1,22 @@
+ARG PYTHON_BUILDER_IMAGE_TAG=3.11.11
+ARG PYTHON_RUNTIME_IMAGE_TAG=3.11.11-slim
+
+ARG CUDA_IMAGE_TAG=12.6.3-base-ubuntu22.04
+FROM python:${PYTHON_BUILDER_IMAGE_TAG} as builder
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY ./requirements.gpu.txt /requirements.txt
+RUN pip wheel --no-cache-dir --wheel-dir /wheels -r /requirements.txt
+
+FROM python:${PYTHON_RUNTIME_IMAGE_TAG}
+
+COPY --from=builder /wheels /wheels
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends libportaudio2 \
+    && pip install --no-cache /wheels/* \
+    && apt-get clean && rm -rf /wheels/*
+

@@ -1,0 +1,24 @@
+ARG PYTHON_IMAGE_TAG=3.11.11
+
+ARG CUDA_IMAGE_TAG=12.6.3-base-ubuntu22.04
+FROM python:${PYTHON_IMAGE_TAG} as builder
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY ./requirements.gpu.txt /requirements.txt
+RUN pip wheel --no-cache-dir --wheel-dir /wheels -r /requirements.txt
+
+FROM nvcr.io/nvidia/cuda:${CUDA_IMAGE_TAG}
+
+COPY --from=builder /wheels /wheels
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends python3.11 python3.11-distutils libgl1-mesa-glx libportaudio2 curl \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 \ 
+    && apt-get purge -y curl \
+    && rm -rf /var/lib/apt/lists/* \ 
+    && pip install --no-cache /wheels/* \
+    && apt-get clean && rm -rf /wheels/*
+
