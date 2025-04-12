@@ -28,7 +28,7 @@ class Recorder():
         self.running = False
 
     def read_from_stream(self, 
-                         indata: ndarray,
+                         indata: np.ndarray,
                          frames: int, 
                          time, 
                          status):
