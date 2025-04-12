@@ -5,11 +5,17 @@ services:
       dockerfile: dockerfile.cpu
       tags: 
         - "whisper_vad_image:cpu"
+    user: 1000:1000
+    environment:
+      - AUDIO_DEVICE_INDEX=${AUDIO_DEVICE_INDEX}
     devices:
-      - /dev/snd:/dev/snd
+      - /dev/snd
     volumes:
+      - /dev/snd:/dev/snd
       - "./whisper_vad:/app/"
       - "${VAD_DIR}:/app/model/vad/"
       - "${WHISPER_DIR}:/app/model/whisper/"
+    group_add:
+      - audio
     entrypoint: python3.11 /app/main.py
     

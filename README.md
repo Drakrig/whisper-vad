@@ -59,6 +59,7 @@ nano .env
 ```
 VAD_DIR=/path/to/onnx/model/dir/
 WHISPER_DIR=/path/to/whisper/model/dir/
+AUDIO_DEVICE_INDEX=device_index
 ```
 
 This is a good practice so it's recommended to use it.
@@ -92,3 +93,44 @@ For CPU only run
 It automatically build and launch container. The recognized text will be displayed in console as 
 
 ``Transcription: {text}``
+
+## How to access microphone from Docker.
+
+I only tried it on Linux so far. It might be tricky to do it on Windows. Best solution probably will be to use something with WSL, but it just a guess.
+
+Compose file have all necessary preparations done. The only thing you need to adjust is `AUDIO_DEVICE_INDEX` value in `.env` file.
+
+The most straightforward way to find your device index is to use `sounddevice` package. The best way would be to run it inside Docker container. To do so, add this lines to `whisper` service in compose file:
+```
+stdin_open: true
+tty: true
+```
+then run
+
+```
+docker exec container_name /bin/bash
+```
+As you inside the container, start Python CLI
+```
+python3
+```
+
+and run the code below 
+
+```
+import sounddevice as sd
+
+print(sd.query_devices())
+```
+
+You'll something like this:
+
+```
+  0 USB Audio: - (hw:0,0), ALSA (2 in, 8 out)
+  1 USB Audio: #1 (hw:0,1), ALSA (2 in, 2 out)
+  ...
+* 32 default, ALSA (128 in, 128 out)
+  33 dmix, ALSA (0 in, 2 out)
+```
+
+Default device seems not to work properly in Docker so you need to determine device, in which your microphone plugged in. After all of this, adjust `AUDIO_DEVICE_INDEX` according to your findings.

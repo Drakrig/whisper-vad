@@ -13,6 +13,7 @@ from queue import Empty
 from typing import Optional
 from logging import getLogger
 from log_config import setup_logging
+import os
 
 setup_logging()
 logger = getLogger(__name__)
@@ -57,8 +58,9 @@ class RecorderTask(Task):
     recorder: Recorder
 
     def run(self):
+        device = int(os.environ.get("AUDIO_DEVICE_INDEX", None))
         try:
-            with sd.InputStream(dtype='float32',channels=1, samplerate=self.recorder.sr, blocksize=self.recorder.frame_size, callback=self.recorder.read_from_stream):
+            with sd.InputStream(dtype='float32',channels=1, samplerate=self.recorder.sr, device=device, blocksize=self.recorder.frame_size, latency='high', callback=self.recorder.read_from_stream):
                 self.stop_event.wait()
         except KeyboardInterrupt:
             logger.info(f"Task {self.name} stopped")
