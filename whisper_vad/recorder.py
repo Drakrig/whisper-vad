@@ -45,7 +45,7 @@ class Recorder():
         """
         if status:
             logger.error(f"Error: {status}")
-        self.output_queue.put(np.array(indata, dtype=np.float32)[:,0]) 
+        self.output_queue.put(indata.astype(np.float32)[:,0]) 
 
 if __name__ == "__main__":
     logger.info("Testing Recorder")
